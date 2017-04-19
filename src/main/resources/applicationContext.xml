@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+	http://www.springframework.org/schema/beans/spring-beans.xsd 
+	http://www.springframework.org/schema/context 
+	http://www.springframework.org/schema/context/spring-context.xsd 
+	http://www.springframework.org/schema/tx 
+	http://www.springframework.org/schema/tx/spring-tx.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop.xsd" >
+	
+	<context:property-placeholder location="classpath:jdbc.properties"/>	
+	
+	<aop:aspectj-autoproxy/>	
+	
+	<context:component-scan base-package="com.service"></context:component-scan>
+	<context:component-scan base-package="com.dao"></context:component-scan>
+	
+	<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${driverClassName}"/>
+		<property name="url" value="${url}"/>
+		<property name="username" value="root"/>
+		<property name="password" value="${password}"/>
+	</bean>
+	
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"/>	
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.connection.autocommit">true</prop>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.current_session_context_class">org.springframework.orm.hibernate5.SpringSessionContext
+				</prop>
+			</props>
+		</property>
+		<property name="packagesToScan">
+			<list>
+				<value>com.entity</value>
+			</list>
+		</property>
+	</bean>
+	
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+   
+	<!--  声明式容器事务管理 ,transaction-manager指定事务管理器为transactionManager -->
+	<bean id="txManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>  
+	</bean>
+	<tx:annotation-driven transaction-manager="txManager"/>
+
+   
+
+</beans>
